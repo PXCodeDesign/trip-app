@@ -14,53 +14,54 @@ import {
 import {Icon} from '../Icon';
 import ChooseCard from '../components/ChooseCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import API_KEY from '../key';
 
 function ChoosePlaceScreen() {
   const navigation = useNavigation();
   const [selectedCity, setSelectedCity] = useState('');
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
+  const [places, setPlaces] = useState([]);
 
   useEffect(() => {
-    // AsyncStorage'den seçilen şehiri al
     const fetchData = async () => {
-      const city = await AsyncStorage.getItem('selectedCity');
-      setSelectedCity(city);
+      try {
+        // Local storage'dan seçilen şehiri al
+        const cityInfoString = await AsyncStorage.getItem('selectedCity');
+        const cityInfo = JSON.parse(cityInfoString);
+        setSelectedCity(cityInfo.name);
+
+        const startTimeValue = await AsyncStorage.getItem('@startTime');
+        const endTimeValue = await AsyncStorage.getItem('@endTime');
+
+        setStartTime(startTimeValue ? new Date(startTimeValue) : null);
+        setEndTime(endTimeValue ? new Date(endTimeValue) : null);
+
+        // Şehir adını ve koordinatları alarak gezilecek yerleri getir
+        if (cityInfo && cityInfo.location) {
+          const {latitude, longitude} = cityInfo.location;
+
+          const placesResponse = await fetch(
+            `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=5000&type=museum&key=${API_KEY}`,
+          );
+
+          const placesData = await placesResponse.json();
+
+          if (placesData.results && placesData.results.length > 0) {
+            setPlaces(placesData.results);
+          } else {
+            console.warn('Gezilecek yer bulunamadı');
+          }
+        } else {
+          console.warn('Şehir bilgileri eksik veya hatalı');
+        }
+      } catch (error) {
+        console.error('Gezilecek yerleri alma hatası:', error);
+      }
     };
 
     fetchData();
   }, []);
-  console.log(selectedCity);
-  const data = [
-    {
-      id: 0,
-      title: 'Maldives',
-      uri: 'https://images.unsplash.com/photo-1573935448851-e0549896410f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    },
-    {
-      id: 1,
-      title: 'İstanbul',
-      uri: 'https://images.unsplash.com/photo-1421930451953-73c5c9ae9abf?q=80&w=2048&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    },
-    {
-      id: 2,
-      title: 'New York',
-      uri: 'https://images.unsplash.com/photo-1602940659805-770d1b3b9911?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    },
-    {
-      id: 3,
-      title: 'Maldives',
-      uri: 'https://images.unsplash.com/photo-1573935448851-e0549896410f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    },
-    {
-      id: 4,
-      title: 'İstanbul',
-      uri: 'https://images.unsplash.com/photo-1421930451953-73c5c9ae9abf?q=80&w=2048&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    },
-    {
-      id: 5,
-      title: 'New York',
-      uri: 'https://images.unsplash.com/photo-1602940659805-770d1b3b9911?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    },
-  ];
 
   return (
     <View style={{flex: 1, backgroundColor: 'black'}}>
@@ -82,6 +83,14 @@ function ChoosePlaceScreen() {
               marginVertical: 5,
             }}>
             Seyahatinizde kaçırmamanız gereken yerleri seçin
+          </Text>
+          <Text>
+            Başlama Saati:
+            {startTime ? startTime.toLocaleTimeString() : 'Henüz seçilmedi'}
+          </Text>
+          <Text>
+            Bitiş Saati:
+            {endTime ? endTime.toLocaleTimeString() : 'Henüz seçilmedi'}
           </Text>
         </View>
         <View
@@ -127,8 +136,8 @@ function ChoosePlaceScreen() {
           style={{
             flexDirection: 'column',
           }}
-          keyExtractor={item => item.id}
-          data={data}
+          keyExtractor={item => item.place_id}
+          data={places}
           renderItem={({item}) => <ChooseCard item={item} />}
         />
 

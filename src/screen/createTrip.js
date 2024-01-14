@@ -20,7 +20,7 @@ function CreateTripScreen() {
   const [search, setSearch] = useState('');
   const [route, setRoute] = useState([]);
   const [places, setPlaces] = useState([]);
-  const [showFlatList, setShowFlatList] = useState(true); // Yeni eklenen state
+  const [showFlatList, setShowFlatList] = useState(true);
 
   useEffect(() => {
     return () => {
@@ -58,13 +58,35 @@ function CreateTripScreen() {
 
   const handlePlaceSelect = async selectedPlace => {
     setSearch(selectedPlace.name);
-    setShowFlatList(false); // FlatList'i gizle
-    await AsyncStorage.setItem('selectedCity', selectedPlace.name);
-    // Başka sayfaya gitme işlemini buradan kaldır
-    // Eğer sadece seçim için referans olsun istiyorsanız, aşağıdaki gibi bir durumu işaretleyebilirsiniz:
-    // setSelectedCity(selectedPlace.name);
-  };
+    setShowFlatList(false);
 
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/place/details/json?place_id=${selectedPlace.place_id}&fields=geometry&key=${API_KEY}`,
+      );
+
+      const json = await response.json();
+      if (
+        json.result &&
+        json.result.geometry &&
+        json.result.geometry.location
+      ) {
+        const location = json.result.geometry.location;
+        const cityInfo = {
+          name: selectedPlace.name,
+          location: {
+            latitude: location.lat,
+            longitude: location.lng,
+          },
+        };
+
+        // Seçilen şehir bilgilerini local storage'a kaydet
+        await AsyncStorage.setItem('selectedCity', JSON.stringify(cityInfo));
+      }
+    } catch (error) {
+      console.error('Şehir koordinatları alma hatası:', error);
+    }
+  };
   return (
     <View style={{flex: 1, backgroundColor: 'black'}}>
       <View

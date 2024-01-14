@@ -10,6 +10,7 @@ import {
 import Search from '../components/Search';
 import TrendingCity from '../components/TrendingCity';
 import {Icon} from '../Icon';
+import CreateCard from '../components/CreateCard';
 
 function HomeScreen() {
   const navigation = useNavigation();
@@ -19,6 +20,7 @@ function HomeScreen() {
         <Icon name="logo" size={70} fill="black" />
       </View>
       <TrendingCity />
+      <CreateCard />
       <TouchableOpacity
         style={{
           position: 'absolute',

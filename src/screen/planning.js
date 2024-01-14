@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Image,
   Text,
@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // AsyncStorage ekleyin
 import {Icon} from '../Icon';
 import {useNavigation} from '@react-navigation/native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -19,6 +20,32 @@ function PlanningScreen() {
   const [selectedEndTime, setSelectedEndTime] = useState(new Date());
   const [isStartTimePickerVisible, setStartTimePickerVisible] = useState(false);
   const [isEndTimePickerVisible, setEndTimePickerVisible] = useState(false);
+
+  // AsyncStorage key'leri
+  const START_TIME_KEY = '@startTime';
+  const END_TIME_KEY = '@endTime';
+
+  // AsyncStorage'den başlangıç ve bitiş saatlerini almak için useEffect
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const startTime = await AsyncStorage.getItem(START_TIME_KEY);
+        const endTime = await AsyncStorage.getItem(END_TIME_KEY);
+
+        if (startTime) {
+          setSelectedStartTime(new Date(startTime));
+        }
+
+        if (endTime) {
+          setSelectedEndTime(new Date(endTime));
+        }
+      } catch (error) {
+        console.error('Veri okuma hatası:', error);
+      }
+    };
+
+    fetchData();
+  }, []); // Bu useEffect sadece bir kere çalışacak şekilde ayarlanmıştır.
 
   const showStartTimePicker = () => {
     setStartTimePickerVisible(true);
@@ -36,14 +63,26 @@ function PlanningScreen() {
     setEndTimePickerVisible(false);
   };
 
-  const handleStartTimeSelection = date => {
+  const handleStartTimeSelection = async date => {
     setSelectedStartTime(date);
     hideStartTimePicker();
+
+    try {
+      await AsyncStorage.setItem(START_TIME_KEY, date.toString());
+    } catch (error) {
+      console.error('Başlama saati kaydetme hatası:', error);
+    }
   };
 
-  const handleEndTimeSelection = date => {
+  const handleEndTimeSelection = async date => {
     setSelectedEndTime(date);
     hideEndTimePicker();
+
+    try {
+      await AsyncStorage.setItem(END_TIME_KEY, date.toString());
+    } catch (error) {
+      console.error('Bitiş saati kaydetme hatası:', error);
+    }
   };
 
   return (
