@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
   ScrollView,
 } from 'react-native';
-
 import {Icon} from '../Icon';
 
 function PlaceScreen() {

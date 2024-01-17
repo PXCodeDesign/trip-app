@@ -11,6 +11,8 @@ import PlanningScreen from './screen/planning';
 import PlaceScreen from './screen/Place';
 import ItineraryScreen from './screen/Itinerary';
 import ChoosePlaceScreen from './screen/ChoosePlace';
+import TripSummaryScreen from './screen/TripSummary';
+import MapsScreen from './screen/MapsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -132,6 +134,39 @@ function CreateStackNavigator() {
           ),
         })}
       />
+      <Stack.Screen
+        name="TripSummary"
+        component={TripSummaryScreen}
+        options={({navigation}) => ({
+          headerShown: true,
+          headerTransparent: true,
+          headerTitleAlign: 'center',
+          headerTitle: '',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ChoosePlace')}>
+              <Icon name="left" size={24} fill="white" />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <Stack.Screen
+        name="MapsScreen"
+        component={MapsScreen}
+        options={({navigation}) => ({
+          headerShown: true,
+          headerTransparent: true,
+          headerTitleAlign: 'center',
+          headerTitle: '',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('TripSummary')}>
+              <Icon name="left" size={24} fill="white" />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <Stack.Screen name="AboutScreen" component={AboutScreen} />
     </Stack.Navigator>
   );
 }

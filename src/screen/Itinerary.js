@@ -62,7 +62,7 @@ function ItineraryScreen() {
 
         <View style={{marginTop: 100}}>
           <TouchableOpacity
-            onPress={() => navigation.navigate('Place')}
+            onPress={() => navigation.navigate('TripSummary')}
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',

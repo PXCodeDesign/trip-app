@@ -37,11 +37,17 @@ function ChooseCard({item}) {
           <Icon name="add" fill="white" size={24} />
         </TouchableOpacity>
 
-        {item.photos && item.photos.length > 0 && (
+        {item.photos && item.photos.length > 0 ? (
           <Image
             source={{
               uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${item.photos[0].photo_reference}&key=${API_KEY}`,
             }}
+            style={{width: '33%', height: 120, borderRadius: 10}}
+            resizeMode="cover"
+          />
+        ) : (
+          <Image
+            source={require('../assets/no_images.jpg')}
             style={{width: '33%', height: 120, borderRadius: 10}}
             resizeMode="cover"
           />

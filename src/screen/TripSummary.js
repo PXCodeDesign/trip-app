@@ -12,16 +12,20 @@ import {
 } from 'react-native';
 
 import {Icon} from '../Icon';
-import ChooseCard from '../components/ChooseCard';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import API_KEY from '../key';
 
-function ChoosePlaceScreen() {
+function TripSummaryScreen() {
   const navigation = useNavigation();
   const [selectedCity, setSelectedCity] = useState('');
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
   const [places, setPlaces] = useState([]);
+  const [value, setValue] = useState(null);
+
+  useEffect(() => {
+    setValue(`${selectedCity} Seyahati`);
+  }, [selectedCity]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -74,72 +78,141 @@ function ChoosePlaceScreen() {
           flex: 1,
         }}>
         <View
-          style={{marginVertical: 10, paddingHorizontal: 20, paddingTop: 20}}>
+          style={{
+            marginVertical: 10,
+            paddingTop: 20,
+            gap: 5,
+            marginHorizontal: 20,
+          }}>
           <Text
             style={{
               color: 'black',
               fontSize: 18,
               fontWeight: '500',
-              marginVertical: 5,
             }}>
-            Seyahatinizde kaçırmamanız gereken yerleri seçin
+            Seyahat ismi
           </Text>
-        </View>
-        <View
-          style={{
-            marginHorizontal: 20,
-            backgroundColor: '#efefef',
-            borderRadius: 10,
-            marginVertical: 5,
-            paddingLeft: 10,
-            flexDirection: 'row',
-            alignItems: 'center',
-            // elevation: 4, // Android için shadow
-            // shadowColor: 'black', // iOS için shadow rengi
-            // shadowOffset: {width: 0, height: 2}, // iOS için shadow offset
-            // shadowOpacity: 0.5, // iOS için shadow opasite
-            // shadowRadius: 2,
-            overflow: 'hidden',
-          }}>
-          <Icon name="search" size={24} />
           <TextInput
             style={{
               color: 'black',
               backgroundColor: '#efefef',
               fontSize: 16,
-              fontWeight: '500',
+              fontWeight: '400',
+              borderRadius: 10,
+              paddingHorizontal: 10,
+              height: 40,
             }}
-            placeholder="Search.."
+            value={value}
+            placeholder="Seyahat ismi"
+            onChangeText={setValue}
           />
+          {/* <Text>
+            Başlama Saati:
+            {startTime ? startTime.toLocaleTimeString() : 'Henüz seçilmedi'}
+          </Text>
+          <Text>
+            Bitiş Saati:
+            {endTime ? endTime.toLocaleTimeString() : 'Henüz seçilmedi'}
+          </Text> */}
         </View>
-        <View style={{marginVertical: 10}}>
+
+        <View
+          style={{
+            marginVertical: 10,
+            gap: 5,
+            marginHorizontal: 20,
+          }}>
           <Text
             style={{
               color: 'black',
               fontSize: 18,
               fontWeight: '500',
-              marginVertical: 5,
-              marginHorizontal: 20,
             }}>
-            {selectedCity}'da mutlaka görülmeli
+            Varış Noktası
+          </Text>
+          <Text
+            style={{
+              color: 'black',
+              fontSize: 16,
+              fontWeight: '400',
+              backgroundColor: '#efefef',
+              padding: 10,
+              borderRadius: 10,
+            }}>
+            {selectedCity}
           </Text>
         </View>
-        <FlatList
+        <View
           style={{
-            flexDirection: 'column',
-          }}
-          keyExtractor={item => item.place_id}
-          data={places}
-          renderItem={({item}) => <ChooseCard item={item} />}
-        />
-
+            marginVertical: 10,
+            gap: 5,
+            marginHorizontal: 20,
+          }}>
+          <Text
+            style={{
+              color: 'black',
+              fontSize: 18,
+              fontWeight: '500',
+            }}>
+            Ayrıntılar
+          </Text>
+          <View
+            style={{
+              backgroundColor: '#efefef',
+              padding: 10,
+              borderRadius: 10,
+              flexDirection: 'row',
+              gap: 5,
+              alignItems: 'center',
+            }}>
+            <Icon name="calendar" fill="black" size={16} />
+            <View style={{gap: 3}}>
+              <Text
+                style={{
+                  color: 'black',
+                  fontSize: 16,
+                  fontWeight: '500',
+                }}>
+                Seyahat Tarihi
+              </Text>
+              <Text
+                style={{
+                  color: '#0f0f0f',
+                  fontSize: 14,
+                  fontWeight: '400',
+                }}>
+                Ocak 23 - Ocak 25
+              </Text>
+            </View>
+          </View>
+        </View>
         <TouchableOpacity
-          onPress={() => navigation.navigate('TripSummary')}
+          onPress={() => navigation.navigate('AboutScreen')}
           style={{
-            flexDirection: 'row',
             backgroundColor: '#efefef',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            borderRadius: 10,
+            marginHorizontal: 20,
+            marginBottom: 20,
+            paddingVertical: 10,
+            paddingHorizontal: 10,
+            position: 'absolute',
+            bottom: 60,
+            width: '90%',
+          }}>
+          <Text
+            style={{
+              color: 'black',
+              fontSize: 18,
+              fontWeight: '500',
+              textAlign: 'center',
+            }}>
+            about
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('MapsScreen')}
+          style={{
+            backgroundColor: '#efefef',
             borderRadius: 10,
             marginHorizontal: 20,
             marginBottom: 20,
@@ -156,13 +229,11 @@ function ChoosePlaceScreen() {
               fontWeight: '500',
               textAlign: 'center',
             }}>
-            Seyehat planı oluştur
+            Seyahati Oluştur
           </Text>
-          <Icon name="routing" fill="black" size={24} />
         </TouchableOpacity>
       </View>
     </View>
   );
 }
-
-export default ChoosePlaceScreen;
+export default TripSummaryScreen;
