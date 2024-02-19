@@ -13,6 +13,13 @@ import ItineraryScreen from './screen/Itinerary';
 import ChoosePlaceScreen from './screen/ChoosePlace';
 import TripSummaryScreen from './screen/TripSummary';
 import MapsScreen from './screen/MapsScreen';
+import SignInScreen from './screen/SignIn';
+import SignUpScreen from './screen/SignUp';
+import CityTripScreen from './screen/CityTrip';
+import PlaceToVisitScreen from './screen/PlaceToVisit';
+import ScheduleScreen from './screen/Schedule';
+import Deneme from './screen/deneme';
+import AddLocationScreen from './screen/AddLocation';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -20,7 +27,10 @@ const Tab = createBottomTabNavigator();
 function StackNavigator() {
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
+      {/* <Stack.Screen name="SignInScreen" component={SignInScreen} />
+      <Stack.Screen name="SignUpScreen" component={SignUpScreen} /> */}
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
+      {/* <Stack.Screen name="Deneme" component={Deneme} /> */}
       <Stack.Screen
         name="DetailPage"
         component={DetailPage}
@@ -105,6 +115,21 @@ function CreateStackNavigator() {
         })}
       />
       <Stack.Screen
+        name="AddLocation"
+        component={AddLocationScreen}
+        options={({navigation}) => ({
+          headerShown: true,
+          headerTransparent: true,
+          headerTitleAlign: 'center',
+          headerTitle: '',
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.navigate('Planning')}>
+              <Icon name="left" size={24} fill="white" />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <Stack.Screen
         name="Itinerary"
         component={ItineraryScreen}
         options={({navigation}) => ({
@@ -151,8 +176,8 @@ function CreateStackNavigator() {
         })}
       />
       <Stack.Screen
-        name="MapsScreen"
-        component={MapsScreen}
+        name="CityTrip"
+        component={CityTripScreen}
         options={({navigation}) => ({
           headerShown: true,
           headerTransparent: true,
@@ -161,6 +186,51 @@ function CreateStackNavigator() {
           headerLeft: () => (
             <TouchableOpacity
               onPress={() => navigation.navigate('TripSummary')}>
+              <Icon name="left" size={24} fill="white" />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <Stack.Screen
+        name="PlaceToVisit"
+        component={PlaceToVisitScreen}
+        options={({navigation}) => ({
+          headerShown: true,
+          headerTransparent: true,
+          headerTitleAlign: 'center',
+          headerTitle: '',
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.navigate('CityTrip')}>
+              <Icon name="left" size={24} fill="white" />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <Stack.Screen
+        name="MapsScreen"
+        component={MapsScreen}
+        options={({navigation}) => ({
+          headerShown: true,
+          headerTransparent: true,
+          headerTitleAlign: 'center',
+          headerTitle: '',
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.navigate('CityTrip')}>
+              <Icon name="left" size={24} fill="white" />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <Stack.Screen
+        name="Schedule"
+        component={ScheduleScreen}
+        options={({navigation}) => ({
+          headerShown: true,
+          headerTransparent: true,
+          headerTitleAlign: 'center',
+          headerTitle: '',
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.navigate('CityTrip')}>
               <Icon name="left" size={24} fill="white" />
             </TouchableOpacity>
           ),

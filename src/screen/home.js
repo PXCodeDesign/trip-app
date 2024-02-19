@@ -17,7 +17,7 @@ function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Icon name="logo" size={70} fill="black" />
+        <Icon name="logo" size={100} fill="black" />
       </View>
       <TrendingCity />
       <CreateCard />
@@ -33,6 +33,18 @@ function HomeScreen() {
         onPress={() => navigation.navigate('Create')}>
         <Icon name="add" size={32} fill="white" />
       </TouchableOpacity>
+      {/* <TouchableOpacity
+        style={{
+          position: 'absolute',
+          bottom: 20,
+          left: 20,
+          borderRadius: 50,
+          padding: 10,
+          backgroundColor: 'black',
+        }}
+        onPress={() => navigation.navigate('Deneme')}>
+        <Icon name="location" size={32} fill="white" />
+      </TouchableOpacity> */}
     </SafeAreaView>
   );
 }
@@ -42,7 +54,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 10,
+    paddingVertical: 20,
   },
+  header_title: {},
   header_text: {
     color: 'black',
     fontSize: 24,

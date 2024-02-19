@@ -1,57 +1,76 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet, View} from 'react-native';
-import MapView, {Marker} from 'react-native-maps';
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
+import MapView, {Marker, PROVIDER_GOOGLE, Callout} from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useNavigation} from '@react-navigation/native';
 import API_KEY from '../key';
 
 function MapsScreen() {
-  const navigation = useNavigation();
-  const [selectedCity, setSelectedCity] = useState('');
+  const [userLocation, setUserLocation] = useState(null);
   const [places, setPlaces] = useState([]);
-  const [route, setRoute] = useState([]);
+  const [routeCoordinates, setRouteCoordinates] = useState([]);
+  const [selectedPlace, setSelectedPlace] = useState(null);
 
-  const fetchData = async () => {
+  useEffect(() => {
+    startRoute();
+  }, []);
+
+  const calculateOptimalRoute = async () => {
     try {
-      // AsyncStorage'ten seçilen şehir bilgisini al
-      const cityInfoString = await AsyncStorage.getItem('selectedCity');
-      const cityInfo = JSON.parse(cityInfoString);
+      const storedLocation = await AsyncStorage.getItem('startLocation');
+      const storedCity = await AsyncStorage.getItem('selectedCity');
 
-      setSelectedCity(cityInfo.name);
+      if (storedLocation && storedCity) {
+        const startLocation = JSON.parse(storedLocation);
+        setUserLocation(startLocation);
 
-      // Şehir adını kullanarak koordinatları al
-      const cityCoordinatesResponse = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?address=${cityInfo.name}&key=${API_KEY}`,
-      );
-      const cityCoordinatesData = await cityCoordinatesResponse.json();
+        const endLocation = {...startLocation};
+        const startTime = new Date();
+        const endTime = new Date(startTime.getTime() + 8 * 60 * 60 * 1000);
 
-      if (
-        cityCoordinatesData.results &&
-        cityCoordinatesData.results.length > 0
-      ) {
-        const {lat, lng} = cityCoordinatesData.results[0].geometry.location;
-
-        // Gezilecek yerleri almak için bu koordinatları kullan
-        const placesResponse = await fetch(
-          `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=5000&type=museum&key=${API_KEY}`,
+        const cityInfo = await fetchCityInfo(
+          storedCity,
+          startLocation.latitude,
+          startLocation.longitude,
+          endTime,
         );
 
-        const placesData = await placesResponse.json();
+        if (cityInfo && cityInfo.results && cityInfo.results.length > 0) {
+          const result = cityInfo.results[0];
+          const location = result.geometry?.location;
 
-        if (placesData.results && placesData.results.length > 0) {
-          const placesSlice = placesData.results.slice(0, 5);
+          if (location && location.lat && location.lng) {
+            const destination = {
+              latitude: location.lat,
+              longitude: location.lng,
+            };
 
-          setPlaces(placesSlice);
+            const waypoints = [
+              `${startLocation.latitude},${startLocation.longitude}`,
+              `${endLocation.latitude},${endLocation.longitude}`,
+            ];
 
-          const routeCoordinates = placesSlice.map(place => ({
-            latitude: place.geometry.location.lat,
-            longitude: place.geometry.location.lng,
-          }));
+            const directionsCoordinates = await getDirections(
+              `${startLocation.latitude},${startLocation.longitude}`,
+              `${destination.latitude},${destination.longitude}`,
+              waypoints,
+            );
 
-          setRoute(routeCoordinates);
+            if (directionsCoordinates) {
+              setRouteCoordinates([directionsCoordinates]);
+            }
+          } else {
+            console.warn('Gezilecek yer bulunamadı.');
+          }
         } else {
-          console.warn('Gezilecek yer bulunamadı');
+          console.warn('Gezilecek yer bulunamadı.');
         }
       }
     } catch (error) {
@@ -59,43 +78,207 @@ function MapsScreen() {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [selectedCity]);
+  const fetchCityInfo = async (storedCity, latitude, longitude, endTime) => {
+    try {
+      const apiUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${storedCity}&location=${latitude},${longitude}&radius=5000&key=${API_KEY}`;
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+
+      if (response.ok) {
+        return data;
+      } else {
+        console.error('City info API request failed:', data);
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching city info:', error);
+      return null;
+    }
+  };
+
+  const getDirections = async (origin, destination, waypoints) => {
+    console.log('Waypoints:', waypoints);
+    try {
+      if (!waypoints || waypoints.length === 0) {
+        console.error('Waypoints array is empty or undefined.');
+        return null;
+      }
+      const waypointString = waypoints.join('|');
+      const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&waypoints=${waypointString}&key=${API_KEY}`;
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+
+      if (data.status === 'OK') {
+        if (data.status === 'OK') {
+          setRouteCoordinates([data]); // Rota koordinatlarını güncelle
+          return data;
+        } else {
+          console.error('Directions API response:', data);
+        }
+      } else {
+        console.error('Directions API request failed:', data);
+      }
+
+      setRouteCoordinates([]); // Rota bulunamazsa boş bir dizi kullanın
+      return null;
+    } catch (error) {
+      console.error('Error fetching directions:', error);
+      setRouteCoordinates([]); // Hata durumunda boş bir dizi kullanın
+      return null;
+    }
+  };
+
+  const startRoute = async () => {
+    try {
+      const startLocationString = await AsyncStorage.getItem('startLocation');
+      const startLocation = JSON.parse(startLocationString);
+
+      if (startLocation) {
+        setUserLocation(startLocation);
+        await fetchPlaces(
+          startLocation.latitude,
+          startLocation.longitude,
+          startLocation,
+        );
+        await calculateOptimalRoute();
+      }
+    } catch (error) {
+      console.error('Hata:', error);
+    }
+  };
+
+  const handlePlacePress = async selectedPlace => {
+    console.log('Selected Place:', selectedPlace);
+
+    if (
+      selectedPlace &&
+      selectedPlace.geometry &&
+      selectedPlace.geometry.location
+    ) {
+      const destination = `${selectedPlace.geometry.location.lat},${selectedPlace.geometry.location.lng}`;
+
+      if (userLocation && userLocation.latitude !== undefined) {
+        const startLocation = `${userLocation.latitude},${userLocation.longitude}`;
+        const waypoints = [startLocation, destination];
+
+        const directionsCoordinates = await getDirections(
+          startLocation,
+          destination,
+          waypoints,
+        );
+
+        if (directionsCoordinates) {
+          setRouteCoordinates([directionsCoordinates]);
+        }
+      } else {
+        console.warn('Invalid user location:', userLocation);
+      }
+    } else {
+      console.error('Invalid selected place:', selectedPlace);
+    }
+  };
+
+  const renderItem = ({item}) => (
+    <TouchableOpacity
+      style={styles.placeContainer}
+      onPress={() => handlePlacePress(item)}>
+      {item.photos && item.photos.length > 0 ? (
+        <Image
+          source={{
+            uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${item.photos[0]?.photo_reference}&key=${API_KEY}`,
+          }}
+          style={styles.placeImage}
+          resizeMode="cover"
+        />
+      ) : (
+        <Image
+          source={require('../assets/no_images.jpg')}
+          style={styles.placeImage}
+          resizeMode="cover"
+        />
+      )}
+      <View style={styles.placeDetails}>
+        <Text style={styles.placeName}>{item.name}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const fetchPlaces = async (lat, lng, startLocation) => {
+    try {
+      const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=5000&type=museum&key=${API_KEY}`;
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+
+      setPlaces([startLocation, ...data.results]);
+    } catch (error) {
+      console.error('Error fetching places:', error);
+    }
+  };
 
   return (
     <View style={styles.container}>
       <MapView
-        provider={MapView.PROVIDER_GOOGLE}
-        style={{flex: 1}}
+        provider={PROVIDER_GOOGLE}
+        style={styles.map}
+        showsUserLocation
+        showsMyLocationButton
         region={{
-          latitude: route.length > 0 ? route[0].latitude : 0,
-          longitude: route.length > 0 ? route[0].longitude : 0,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
+          latitude: userLocation?.latitude || 0,
+          longitude: userLocation?.longitude || 0,
+          latitudeDelta: 0.1, // Örnek değer, ihtiyaca göre ayarlayabilirsiniz
+          longitudeDelta: 0.1,
         }}>
-        {places.map((place, index) => (
-          <Marker
-            key={index}
-            coordinate={{
-              latitude: place.geometry.location.lat,
-              longitude: place.geometry.location.lng,
-            }}
-            title={place.name}
-            pinColor="green"
-          />
-        ))}
-        {route.length > 1 && (
-          <MapViewDirections
-            origin={route[0]}
-            waypoints={route.slice(1, -1)}
-            destination={route[route.length - 1]}
-            apikey={API_KEY}
-            strokeWidth={3}
-            strokeColor="blue"
-          />
-        )}
+        {places.map((place, index) => {
+          if (place && place.geometry) {
+            const location = place.geometry.location;
+            if (location && location.lat && location.lng) {
+              return (
+                <Marker
+                  key={index}
+                  coordinate={{
+                    latitude: location.lat,
+                    longitude: location.lng,
+                  }}>
+                  <Callout>
+                    <Text>{place.name}</Text>
+                  </Callout>
+                </Marker>
+              );
+            }
+          }
+          return null;
+        })}
+        {routeCoordinates.length > 0 &&
+          routeCoordinates.map((coordinates, index) => (
+            <MapViewDirections
+              key={index}
+              origin={{
+                latitude: userLocation?.latitude || 0,
+                longitude: userLocation?.longitude || 0,
+              }}
+              destination={{
+                latitude: coordinates[coordinates.length - 1]?.latitude || 0,
+                longitude: coordinates[coordinates.length - 1]?.longitude || 0,
+              }}
+              waypoints={
+                Array.isArray(coordinates) ? coordinates.slice(0, -1) : []
+              }
+              apikey={API_KEY}
+              strokeWidth={13}
+              strokeColor="#00adc6"
+            />
+          ))}
       </MapView>
+      <View style={styles.bottomContainer}>
+        <FlatList
+          horizontal
+          style={styles.placesList}
+          data={places}
+          renderItem={renderItem}
+          keyExtractor={item => item.place_id}
+          extraData={routeCoordinates}
+        />
+      </View>
     </View>
   );
 }
@@ -103,6 +286,38 @@ function MapsScreen() {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
+  },
+  map: {
+    flex: 1,
+  },
+  bottomContainer: {
+    position: 'absolute',
+    bottom: 50,
+  },
+  placesList: {
+    flexDirection: 'column',
+    flexWrap: 'wrap',
+  },
+  placeContainer: {
+    height: 275,
+    width: 275,
+    marginHorizontal: 10,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  placeImage: {
+    width: '100%',
+    height: '70%',
+  },
+  placeDetails: {
+    backgroundColor: 'white',
+    padding: 10,
+  },
+  placeName: {
+    fontSize: 16,
+    color: 'black',
+    fontWeight: '400',
   },
 });
 

@@ -87,27 +87,22 @@ function ChoosePlaceScreen() {
         </View>
         <View
           style={{
-            marginHorizontal: 20,
-            backgroundColor: '#efefef',
+            backgroundColor: '#f5f7fc',
             borderRadius: 10,
-            marginVertical: 5,
-            paddingLeft: 10,
+            paddingHorizontal: 10,
             flexDirection: 'row',
             alignItems: 'center',
-            // elevation: 4, // Android için shadow
-            // shadowColor: 'black', // iOS için shadow rengi
-            // shadowOffset: {width: 0, height: 2}, // iOS için shadow offset
-            // shadowOpacity: 0.5, // iOS için shadow opasite
-            // shadowRadius: 2,
-            overflow: 'hidden',
+            borderWidth: 1,
+            borderColor: '#428bf8',
+            marginHorizontal: 20,
           }}>
           <Icon name="search" size={24} />
           <TextInput
             style={{
               color: 'black',
-              backgroundColor: '#efefef',
               fontSize: 16,
               fontWeight: '500',
+              width: '95%',
             }}
             placeholder="Search.."
           />
@@ -137,7 +132,6 @@ function ChoosePlaceScreen() {
           onPress={() => navigation.navigate('TripSummary')}
           style={{
             flexDirection: 'row',
-            backgroundColor: '#efefef',
             justifyContent: 'space-between',
             alignItems: 'center',
             borderRadius: 10,
@@ -148,17 +142,18 @@ function ChoosePlaceScreen() {
             position: 'absolute',
             bottom: 10,
             width: '90%',
+            backgroundColor: '#1e1d2e',
           }}>
           <Text
             style={{
-              color: 'black',
+              color: 'white',
               fontSize: 18,
               fontWeight: '500',
               textAlign: 'center',
             }}>
             Seyehat planı oluştur
           </Text>
-          <Icon name="routing" fill="black" size={24} />
+          <Icon name="routing" fill="white" size={24} />
         </TouchableOpacity>
       </View>
     </View>

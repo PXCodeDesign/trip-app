@@ -32,7 +32,7 @@ function PlaceScreen() {
             height: '100%',
             resizeMode: 'contain',
           }}
-          source={require('../assets/trip2.png')}
+          source={require('../assets/location.jpg')}
         />
       </View>
       <View
@@ -57,9 +57,9 @@ function PlaceScreen() {
           </Text>
         </View>
 
-        <View style={{marginTop: 100}}>
+        <View style={{marginTop: 100, gap: 4}}>
           <TouchableOpacity
-            onPress={() => navigation.navigate('Place')}
+            onPress={() => navigation.navigate('AddLocation')}
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
@@ -67,19 +67,18 @@ function PlaceScreen() {
               borderRadius: 10,
               paddingVertical: 10,
               paddingHorizontal: 10,
-              marginVertical: 10,
-              backgroundColor: '#efefef',
+              backgroundColor: '#1e1d2e',
             }}>
             <Text
               style={{
-                color: 'black',
+                color: 'white',
                 fontSize: 18,
                 fontWeight: '500',
                 textAlign: 'center',
               }}>
               Konaklama Ekle
             </Text>
-            <Icon name="locationTick" fill="black" size={24} />
+            <Icon name="locationTick" fill="white" size={24} />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => navigation.navigate('Itinerary')}
@@ -90,19 +89,18 @@ function PlaceScreen() {
               borderRadius: 10,
               paddingVertical: 10,
               paddingHorizontal: 10,
-              marginBottom: 10,
-              backgroundColor: '#efefef',
+              backgroundColor: '#1e1d2e',
             }}>
             <Text
               style={{
-                color: 'black',
+                color: 'white',
                 fontSize: 18,
                 fontWeight: '500',
                 textAlign: 'center',
               }}>
               Daha Sonra Ekle
             </Text>
-            <Icon name="safeHome" fill="black" size={24} />
+            <Icon name="safeHome" fill="white" size={24} />
           </TouchableOpacity>
         </View>
       </View>

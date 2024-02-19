@@ -95,12 +95,14 @@ function TripSummaryScreen() {
           <TextInput
             style={{
               color: 'black',
-              backgroundColor: '#efefef',
               fontSize: 16,
               fontWeight: '400',
               borderRadius: 10,
               paddingHorizontal: 10,
               height: 40,
+              backgroundColor: '#f5f7fc',
+              borderWidth: 1,
+              borderColor: '#428bf8',
             }}
             value={value}
             placeholder="Seyahat ismi"
@@ -135,7 +137,9 @@ function TripSummaryScreen() {
               color: 'black',
               fontSize: 16,
               fontWeight: '400',
-              backgroundColor: '#efefef',
+              backgroundColor: '#f5f7fc',
+              borderWidth: 1,
+              borderColor: '#428bf8',
               padding: 10,
               borderRadius: 10,
             }}>
@@ -158,7 +162,9 @@ function TripSummaryScreen() {
           </Text>
           <View
             style={{
-              backgroundColor: '#efefef',
+              backgroundColor: '#f5f7fc',
+              borderWidth: 1,
+              borderColor: '#428bf8',
               padding: 10,
               borderRadius: 10,
               flexDirection: 'row',
@@ -186,33 +192,11 @@ function TripSummaryScreen() {
             </View>
           </View>
         </View>
+
         <TouchableOpacity
-          onPress={() => navigation.navigate('AboutScreen')}
+          onPress={() => navigation.navigate('CityTrip')}
           style={{
-            backgroundColor: '#efefef',
-            borderRadius: 10,
-            marginHorizontal: 20,
-            marginBottom: 20,
-            paddingVertical: 10,
-            paddingHorizontal: 10,
-            position: 'absolute',
-            bottom: 60,
-            width: '90%',
-          }}>
-          <Text
-            style={{
-              color: 'black',
-              fontSize: 18,
-              fontWeight: '500',
-              textAlign: 'center',
-            }}>
-            about
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('MapsScreen')}
-          style={{
-            backgroundColor: '#efefef',
+            backgroundColor: '#1e1d2e',
             borderRadius: 10,
             marginHorizontal: 20,
             marginBottom: 20,
@@ -224,7 +208,7 @@ function TripSummaryScreen() {
           }}>
           <Text
             style={{
-              color: 'black',
+              color: 'white',
               fontSize: 18,
               fontWeight: '500',
               textAlign: 'center',

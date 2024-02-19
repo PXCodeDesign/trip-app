@@ -103,7 +103,7 @@ function PlanningScreen() {
             height: '100%',
             resizeMode: 'contain',
           }}
-          source={require('../assets/trip2.png')}
+          source={require('../assets/location.jpg')}
         />
       </View>
 
@@ -131,8 +131,11 @@ function PlanningScreen() {
               style={{
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: '#efefef',
-                borderRadius: 5,
+                backgroundColor: '#f5f7fc',
+                borderRadius: 10,
+                paddingHorizontal: 10,
+                borderWidth: 1,
+                borderColor: '#428bf8',
               }}
               onPress={showStartTimePicker}>
               <Text style={{color: 'black', fontSize: 20, marginVertical: 10}}>
@@ -154,8 +157,11 @@ function PlanningScreen() {
               style={{
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: '#efefef',
-                borderRadius: 5,
+                backgroundColor: '#f5f7fc',
+                borderRadius: 10,
+                paddingHorizontal: 10,
+                borderWidth: 1,
+                borderColor: '#428bf8',
               }}
               onPress={showEndTimePicker}>
               <Text style={{color: 'black', fontSize: 20, marginVertical: 10}}>

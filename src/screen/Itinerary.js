@@ -33,7 +33,7 @@ function ItineraryScreen() {
             height: '100%',
             resizeMode: 'contain',
           }}
-          source={require('../assets/trip2.png')}
+          source={require('../assets/location.jpg')}
         />
       </View>
 
@@ -60,7 +60,7 @@ function ItineraryScreen() {
           </Text>
         </View>
 
-        <View style={{marginTop: 100}}>
+        <View style={{marginTop: 100, gap: 4}}>
           <TouchableOpacity
             onPress={() => navigation.navigate('TripSummary')}
             style={{
@@ -70,19 +70,18 @@ function ItineraryScreen() {
               borderRadius: 10,
               paddingVertical: 10,
               paddingHorizontal: 10,
-              marginVertical: 10,
-              backgroundColor: '#efefef',
+              backgroundColor: '#1e1d2e',
             }}>
             <Text
               style={{
-                color: 'black',
+                color: 'white',
                 fontSize: 18,
                 fontWeight: '500',
                 textAlign: 'center',
               }}>
               Seyehat planı oluştur
             </Text>
-            <Icon name="routing" fill="black" size={24} />
+            <Icon name="routing" fill="white" size={24} />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => navigation.navigate('ChoosePlace')}
@@ -93,19 +92,18 @@ function ItineraryScreen() {
               borderRadius: 10,
               paddingVertical: 10,
               paddingHorizontal: 10,
-              marginBottom: 10,
-              backgroundColor: '#efefef',
+              backgroundColor: '#1e1d2e',
             }}>
             <Text
               style={{
-                color: 'black',
+                color: 'white',
                 fontSize: 18,
                 fontWeight: '500',
                 textAlign: 'center',
               }}>
               Belirli yerleri seç
             </Text>
-            <Icon name="locationAdd" fill="black" size={24} />
+            <Icon name="locationAdd" fill="white" size={24} />
           </TouchableOpacity>
         </View>
       </View>

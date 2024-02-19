@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {useNavigation} from '@react-navigation/native';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {
   Image,
   Text,
@@ -18,9 +19,56 @@ import API_KEY from '../key';
 function CreateTripScreen() {
   const navigation = useNavigation();
   const [search, setSearch] = useState('');
-  const [route, setRoute] = useState([]);
   const [places, setPlaces] = useState([]);
   const [showFlatList, setShowFlatList] = useState(true);
+  const [isStartDatePickerVisible, setStartDatePickerVisibility] =
+    useState(false);
+  const [isEndDatePickerVisible, setEndDatePickerVisibility] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const showStartDatePicker = () => {
+    setStartDatePickerVisibility(true);
+  };
+
+  const hideStartDatePicker = () => {
+    setStartDatePickerVisibility(false);
+  };
+
+  const handleStartDateConfirm = date => {
+    const formattedDate = date.toISOString().split('T')[0];
+    setStartDate(formattedDate);
+    hideStartDatePicker();
+  };
+
+  const showEndDatePicker = () => {
+    setEndDatePickerVisibility(true);
+  };
+
+  const hideEndDatePicker = () => {
+    setEndDatePickerVisibility(false);
+  };
+
+  const handleEndDateConfirm = date => {
+    const formattedDate = date.toISOString().split('T')[0];
+    setEndDate(formattedDate);
+    hideEndDatePicker();
+  };
+
+  const saveDateRange = async () => {
+    // Check if both start and end dates are selected and end date is after or equal to start date
+    if (startDate && endDate && new Date(endDate) >= new Date(startDate)) {
+      const dateRange = {startDate, endDate};
+      await AsyncStorage.setItem(
+        'selectedDateRange',
+        JSON.stringify(dateRange),
+      );
+      navigation.navigate('Planning');
+    } else {
+      // Show an error message or handle the case where selection is invalid
+      console.error('Invalid date selection. Please check your dates.');
+    }
+  };
 
   useEffect(() => {
     return () => {
@@ -95,17 +143,14 @@ function CreateTripScreen() {
           justifyContent: 'center',
           alignItems: 'center',
           margin: 20,
-          padding: 10,
         }}>
         <Image
           style={{
             width: '100%',
-            justifyContent: 'center',
-            alignItems: 'center',
             height: '100%',
             resizeMode: 'contain',
           }}
-          source={require('../assets/trip2.png')}
+          source={require('../assets/location.jpg')}
         />
       </View>
       <View
@@ -130,11 +175,13 @@ function CreateTripScreen() {
             </Text>
             <View
               style={{
-                backgroundColor: '#efefef',
-                borderRadius: 5,
+                backgroundColor: '#f5f7fc',
+                borderRadius: 10,
                 paddingHorizontal: 10,
                 flexDirection: 'row',
                 alignItems: 'center',
+                borderWidth: 1,
+                borderColor: '#428bf8',
               }}>
               <Icon fill={null} name="search" size={20} />
               <TextInput
@@ -142,6 +189,7 @@ function CreateTripScreen() {
                   color: 'black',
                   fontSize: 16,
                   fontWeight: '500',
+                  width: '95%',
                 }}
                 placeholder="City"
                 value={search}
@@ -194,29 +242,68 @@ function CreateTripScreen() {
               }}>
               Aklındaki tarih aralığı nedir?
             </Text>
-            <View
+            {/* Start Date */}
+            <TouchableOpacity
+              onPress={showStartDatePicker}
               style={{
-                backgroundColor: '#efefef',
-                borderRadius: 5,
+                backgroundColor: '#f5f7fc',
+                borderRadius: 10,
+                gap: 5,
+                paddingHorizontal: 10,
+                paddingVertical: 10,
+                flexDirection: 'row',
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: '#428bf8',
+              }}>
+              <Icon fill="black" name="calendar" size={20} />
+              <Text style={{color: 'black', fontSize: 16, fontWeight: '500'}}>
+                {startDate ? `Start: ${startDate}` : 'Select Start Date'}
+              </Text>
+            </TouchableOpacity>
+
+            {/* End Date */}
+            <TouchableOpacity
+              onPress={showEndDatePicker}
+              style={{
+                backgroundColor: '#f5f7fc',
+                borderRadius: 10,
+                paddingVertical: 10,
+                gap: 5,
                 paddingHorizontal: 10,
                 flexDirection: 'row',
                 alignItems: 'center',
+                borderWidth: 1,
+                borderColor: '#428bf8',
+                marginTop: 10,
               }}>
               <Icon fill="black" name="calendar" size={20} />
-              <TextInput
-                style={{
-                  color: 'black',
-                  fontSize: 16,
-                  fontWeight: '600',
-                }}
-                placeholder="Date"
-              />
-            </View>
+              <Text style={{color: 'black', fontSize: 16, fontWeight: '500'}}>
+                {endDate ? `End: ${endDate}` : 'Select End Date'}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Date Picker Modals */}
+            <DateTimePickerModal
+              isVisible={isStartDatePickerVisible}
+              mode="date"
+              onConfirm={handleStartDateConfirm}
+              onCancel={hideStartDatePicker}
+            />
+            <DateTimePickerModal
+              isVisible={isEndDatePickerVisible}
+              mode="date"
+              onConfirm={handleEndDateConfirm}
+              onCancel={hideEndDatePicker}
+            />
           </View>
         </View>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate('Planning')}
+          disabled={
+            !startDate || !endDate || new Date(endDate) < new Date(startDate)
+          }
+          onPress={saveDateRange}
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
